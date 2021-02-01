@@ -1,0 +1,14 @@
+This problem was not actually one that involves coding.  The question:
+
+Explain what the following does: ((n & (n - 1)) == 0)
+
+Answer: It's simple.  It evaluates to true if `n' is a power of two.  For
+example, let `n' be equal to 8:
+
+8     = 1000
+8 - 1 = 0111
+
+`n & (n - 1)` would evaluate to `(1000 & 0111)` which in turn would evaluate
+to `0`.  Going back to the original expression above, we would then have:
+
+`(1000 & 0111) == 0` which evaluates to true.

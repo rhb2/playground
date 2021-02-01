@@ -1,0 +1,22 @@
+Chapter 2: Linked Lists
+
+1. Write a function to remove duplicate elements in an unsorted linked list.
+   Follow up: How would you solve it without a temporary array?
+
+2. Find the kth to last element in a list.
+
+3. Write a function to delete a node from the middle of a given list (i.e. not
+   the first or last node).
+
+4. Write a function to partition a linked list such that all numbers less than
+   a given value come before all numbers greater then or equal to the value.
+
+5. Given two lists, write a function to sum the together in to a 3rd list.
+   1 -> 0 -> 1  +  2 -> 0 -> 2  =  3 -> 0 -> 3
+
+6. Write a function to determine if a given list is a palindrome.
+
+7. Given two lists, if they intersect, find the node at which they intersect.
+
+8. Write a function to detect if a linked list has a loop and if so, identify
+   the node at which the loop starts.

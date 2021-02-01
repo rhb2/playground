@@ -1,0 +1,44 @@
+Question:
+
+Given an input file with four billion non-negative integers, provide an
+algorithm to generate an integer that is not contained in the file.  Assume
+you have 1GB of memory available for this task.
+
+
+Answer:
+
+Since there are 2^32 (i.e. 4 billion) distinct integers, we know that there
+are only about 2 billion values that are non-negative, so by pidgeon hole
+principle, we know that if there are 4 billion values in the file, there must
+be some duplicates.
+
+1. With 1GB of memory, we can store a bit vector which has 8 billion bits.
+2. Initialize the bit vector to all 0's.
+3. Scan all numbers from the file and set the bit in the vector at the index
+   corresponding to the value read from the file.
+4. Once we have scanned the entire file, read the bit vector from the beginning
+   and return the index value of the first bit that is 0.
+
+FOLLOW UP:
+
+What if you only had 10MB of memory to work with?
+
+Answer:
+
+Since you apparently can not fit the entire bit vector in to memory, you can
+create an array which bucketizes the values seen so far:
+
+array[0]: Keep count of all values seen between 0-999
+array[1]: Keep count of all values seen between 1000-1999
+array[2]: Keep count of all values seen between 2000-2999
+[..]
+array[n]: Keep count of all values seen between N*1000 and (N*1000 + 999)
+
+Once the entire file has been scanned, find the first bucket which has a count
+that is less than 1000.  Now scan the file again, using a bitmap of size 1000
+and set the bits within that map that fall between m <= i <= (m + 999) where m
+represents the bucket in the original array that had a count of less than 1000.
+
+After the second scan of the file, find the index in the array that has a bit
+of value 0.  The missing value will be (m * 1000) + i.
+
