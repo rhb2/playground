@@ -5,34 +5,50 @@
  * problems like this, there is usually at least three nested loops where the
  * really interesting logic takes place in the inner-most loop.  At least for
  * me, this heuristic gets really hard to understand, so I have broken up the
- * process into three distinct loops.  Starting from the inner loop and working
- * my way out, their respective purposes are:
+ * process into three distinct functions, each executing one of the three loops.
+ * Starting from the inner loop and working my way out, their respective
+ * purposes are:
  *
  * 1. Given an array, and a left and right index only, perform whatever the
  *    magical evalaution is on the elements within that range (e.g. test for
- *    palindrome, or whether the sum is some value.
+ *    palindrome, or calculating the sum of all elements within that range.
  *
- * 2. For a given length, call the function specified in 1, but call it for all
- *    possible offsets within the array.  For example, if the desired length is
- *    three, this loop, will perform function (1) on a sliding window of three
- *    elements, starting from the beginning of the array and working its way
- *    to the end of it: 0..2, 1..3, 2..4, 3..5.
+ * 2. For a given length, call the function specified in (1), but call it for
+ *    all possible offsets within the array.  For example, if the desired length
+ *    is three, this loop, will perform function (1) on a sliding window of
+ *    three elements, starting from the beginning of the array and working its
+ *    way to the end, calling the function specified in (1) repeatedly, but
+ *    with different indexes each time (0..2, 1..3, 2..4, 3..5).  In short,
+ *    slide the window of fixed size from left to right, calling (1) on it each
+ *    time.
  *
- * 3. Call function described in (2) for all possible lengths, starting with
+ * 3. Call the function described in (2) for all possible lengths, starting with
  *    a length of 1 and working our way up to a subarray that is equal in size
  *    to the entire array itself.
- *
+ * 
+ * Memoization:
  * Memoization of results should take place in (1), so make sure to include the
- * plumbing needed to pass a 2D table from the function in (3) all the way down
- * to the function in (1) since that's where the magic happens.
+ * plumbing needed to pass a 2D array (or the auxiliary data structure that
+ * that best accommodates your needs) from the function in (3) all the way down
+ * to the function in (1) since that's where the magic happens and it's where
+ * the results of the magic must be saved for later resuse.
  *
  * Summary:
  * When tackling these kinds of problems, I have found that it is easier to
  * frame mentally when you first think about what needs to happen for a single
  * iteration between a left and right index.  From there, you can slide the
- * left/right index forward unti the window reaches the other side of the array.
- * After that, it's just a matter of varying the size of the window, starting
- * with a size of one and increasing it from there.
+ * left/right indices forward until the right side of the window reaches the end
+ * of the array.  After that, it's just a matter of varying the size of the
+ * window, starting with a size of one and increasing it from there.
+ *
+ * Final thoughts:
+ * This approach is not always the best solution for these types of problems,
+ * but when you have a hammer, everything tends to look an awful lot like a
+ * nail.  Be on the look out for problems that can also be solved using
+ * Kadane's Algorithm.  Kadane's algorithm is typically used to determine the
+ * maximum sum of a subarray in which an array can contain negative numbers.
+ * This is less about the widest subarray, and more about the largest maximum
+ * value of the elements within the subarray.
  */
 #include <iostream>
 #include <vector>
