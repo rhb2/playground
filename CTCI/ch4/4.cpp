@@ -7,6 +7,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
+#include <queue>
 #include <cassert>
 
 #include "../util/cpptree.h"
@@ -27,20 +28,75 @@ get_height(node<int> *pn)
 }
 
 bool
-is_balanced(node<int> *pn)
+is_balanced1(node<int> *pn)
 {
 	bool left, right;
 
 	if (pn == NULL)
 		return (true);
 
-	left = is_balanced(pn->left);
-	right = is_balanced(pn->right);
+	left = is_balanced1(pn->left);
+	right = is_balanced1(pn->right);
 
 	if (!left || !right)
 		return (false);
 
 	return (abs(get_height(pn->left) - get_height(pn->right)) < 2);
+}
+
+/*
+ * This is straight fire.  Not only is it iterative, but its worst case
+ * complexity is O(n).  It will detect an imbalance at the first possible
+ * sign of one and flag failure.  So, in the case where the tree is not
+ * balanced, we won't even need to visit every single node in the tree to
+ * figure it out.
+ */
+bool
+is_balanced2(node<int> *pn)
+{
+	pair<node<int> *, int> p;
+	queue<pair<node<int> *, int>> q;
+	int cur_depth = 0;
+	vector<int> counts;
+
+	if (pn == NULL)
+		return (true);
+
+	p.first = pn;
+	p.second = 0;
+	q.push(p);
+	counts.push_back(0);
+
+	while (!q.empty()) {
+		p = q.front();
+		q.pop();
+
+		/*
+		 * We need to do two things.  Bump our current level as well
+		 * as check how many nodes we saw in the previous level.  If
+		 * if was not 2^previous_level, then there is an imbalance.
+		 */
+		if (p.second > cur_depth) {
+			if (cur_depth >= 1 &&
+			    counts[cur_depth - 1] != pow(2, cur_depth - 1))
+				return (false);
+
+			counts.push_back(1);
+			cur_depth++;
+		} else {
+			counts[cur_depth]++;
+		}
+
+		if (p.first->left != NULL)
+			q.push(pair<node<int> *, int>(p.first->left,
+			    cur_depth + 1));
+
+		if (p.first->right != NULL)
+			q.push(pair<node<int> *, int>(p.first->right,
+			    cur_depth + 1));
+	}
+
+	return (true);
 }
 
 int main(int argc, char **argv)
@@ -54,12 +110,9 @@ int main(int argc, char **argv)
 	for (i = 0; i < total; i++)
 		t.insert(i);
 
-	for (i = 1; i < total; i++)
-		t.insert(i * -1);
-
 	cout << t;
 
-	if (is_balanced(t.root))
+	if (is_balanced2(t.root))
 		cout << "Tree is balanced." << endl;
 	else
 		cout << "Tree is not balanced." << endl;
@@ -76,7 +129,7 @@ int main(int argc, char **argv)
 
 	cout << t2;
 
-	if (is_balanced(&pn))
+	if (is_balanced2(&pn))
 		cout << "Tree is balanced." << endl;
 	else
 		cout << "Tree is not balanced." << endl;
