@@ -1,3 +1,9 @@
+/*
+ * This uses a recursive technique to check the balance at every subtree in the
+ * tree.  It works, but another interesting idea might be to get the total
+ * number of nodes at each level and if that number isn't a power of two,
+ * disqualify it (unless it's the last level).
+ */
 #include <iostream>
 #include <list>
 #include <vector>
@@ -23,8 +29,16 @@ get_height(node<int> *pn)
 bool
 is_balanced(node<int> *pn)
 {
+	bool left, right;
+
 	if (pn == NULL)
 		return (true);
+
+	left = is_balanced(pn->left);
+	right = is_balanced(pn->right);
+
+	if (!left || !right)
+		return (false);
 
 	return (abs(get_height(pn->left) - get_height(pn->right)) < 2);
 }
@@ -39,6 +53,9 @@ int main(int argc, char **argv)
 
 	for (i = 0; i < total; i++)
 		t.insert(i);
+
+	for (i = 1; i < total; i++)
+		t.insert(i * -1);
 
 	cout << t;
 
