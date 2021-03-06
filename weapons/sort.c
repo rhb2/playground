@@ -150,6 +150,8 @@ merge_sort(int *array, int len)
 
 	(void) bzero(tmp, sizeof (int) * (len + 1));
 	m_sort(array, tmp, 0, len);
+
+	free(tmp);
 }
 
 void
@@ -179,8 +181,8 @@ int main(int argc, char **argv)
 
 	print_array(array, len);
 	//quick_sort(array, 0, len - 1);
-	heap_sort(array, len - 1);
-	//merge_sort(array, len - 1);
+	//heap_sort(array, len - 1);
+	merge_sort(array, len - 1);
 
 	help_check(array, len);
 	return (0);
