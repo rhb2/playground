@@ -28,6 +28,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
 /*
  * Since nftw(3C) uses one file descriptor for each level in the tree, this
  * should be more than enough to traverse the depths of a simple directory.
@@ -39,19 +44,16 @@ static int nftw_cb(const char *, const struct stat *, int, struct FTW *);
 
 /* Globals */
 static int error;
+static vector<int> counts {0};
 
 void
-print_entry(int depth, char *name)
+print_entry(int depth, const char *name)
 {
 	int i;
 
-//	if (depth > 1)
-//		printf("%s", "|");
-
 	for (i = 1; i < depth; i++)
-		printf("%s", "|  ");
+		printf("%c   ", counts[i] > 0 ? '|' : ' ');
 
-//	printf("%s\n", name);
 	printf("|--%s\n", name);
 }
 
@@ -105,30 +107,28 @@ nftw_cb(const char *path, const struct stat *st, int objtype, struct FTW *ftw)
 {
 	int ret = 0;
 	blkcnt_t logical;
-	char *obj_name = strrchr(path, '/');
+	const char *obj_name = strrchr(path, '/');
 
 	switch (objtype) {
 	case FTW_D:
-	case FTW_DP:
+		if (counts.size() == ftw->level + 1)
+			counts.push_back(0);
+
+		counts[ftw->level + 1] += st->st_nlink - 2;
+		
 	case FTW_F:
 		if (obj_name == NULL) {
 			printf("%c\n", '.');
 			break;
 		}
+
+		if (counts[ftw->level] > 0)
+			counts[ftw->level]--;
+
 		print_entry(ftw->level, obj_name + 1);
-		//printf("%s\n", obj_name + 1);
-	//	printf("%d %d %s\n", ftw->base, ftw->level, obj_name + 1);
-/*
-		logical = st->st_blocks / 2;
-		if (st->st_blocks % 2 > 0)
-			logical++;
-		printf("%s\t%lld\t%lu\t%lld\n", path, st->st_size, st->st_mtime,
-		    logical);
-*/
 		break;
 
-	/* We are not interested in directories or symlinks */
-//	case FTW_D:
+	/* We are not interested in symlinks. */
 	case FTW_SL:
 		break;
 
@@ -147,7 +147,7 @@ nftw_cb(const char *path, const struct stat *st, int objtype, struct FTW *ftw)
 		 * more systemmic.
 		 */
 		nftw_warn("%s: unknown type (%d)", path, objtype);
-//		ret = 1;
+		ret = 1;
 		break;
 	}
 
