@@ -1,11 +1,11 @@
 /*
- * This is a tool intended to mimic a lot of the behavior of find(1) when
+ * This is a tool intended to mimic a lot of the behavior of tree(1) when
  * invoked from the command line and supplied with one or more paths.
  *
  * It will traverse the entirety of one or more caller-supplied directory trees,
- * and for each object discovered of type file, it will print the logical size
- * (in bytes), the time of last data modification (epoch time) and the physical
- * size in kilobytes.
+ * and for each object discovered print its name.  It should also indent names
+ * of objects based on their depth within the directory tree as well as print
+ * the fancy lines that tree(1) would use with generating output.
  *
  * This utility uses nftw(3C).  The creation of this program was born out of
  * necessity.  Apparently GNU find (version 4.2.33) builds out an internal
