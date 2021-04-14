@@ -45,6 +45,16 @@ bst_sequences(vector<node<int>> vn)
 				output.push_back(vv[j]);
 			}
 		} else {
+			/*
+			 * This is where the recursion bottoms out.  This is
+			 * the last element in _this_ particular sequence.  It
+			 * will always be one of the leaf nodes in the tree and
+			 * we will need to start a new list with this element
+			 * being the only one on it.  As the recursion unwinds,
+			 * earlier recusrive calls will place their values in
+			 * front (i.e. to the left) of this element as you can
+			 * see in the stanza above.
+			 */
 			vector<int> tmp;
 			tmp.push_back(root.val);
 			output.push_back(tmp);
