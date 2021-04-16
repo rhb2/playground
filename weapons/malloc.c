@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/mman.h>
 
 
 void
@@ -39,7 +40,7 @@ myfree(void *ap)
 	bp = (header_t *)ap - 1;
 
 	for (p = freep; !(bp > p && bp < p->s.ptr); p = p->s.ptr)
-		if (p >= p->s.ptr && (bp < p || bp > p->s.ptr))
+		if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
 			break;
 
 	if (bp + bp->s.size == p->s.ptr) {
@@ -65,8 +66,10 @@ morecore(unsigned nunits)
 	header_t *nu;
 	char *cp;
 
-	cp = sbrk(HDR_SIZE * nunits);
-	if (cp == (int) -1)
+	cp = mmap(NULL, HDR_SIZE * nunits, PROT_READ | PROT_WRITE,
+	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+
+	if (cp == MAP_FAILED)
 		return (NULL);
 
 	nu = (header_t *)cp;
@@ -113,7 +116,7 @@ int main(int argc, char **argv)
 	srand(time(0));
 
 	for (i = 0; i < len; i++)
-		array[i] = rand() % (len * 10);
+		array[i] = i;//rand() % (len * 10);
 
 	print_array(array, len);
 	myfree(array);
