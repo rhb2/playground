@@ -21,16 +21,17 @@ print_array(int *array, int len)
 
 typedef union header {
 	struct {
-		union header *ptr;
 		unsigned size;
+		union header *ptr;
 	} s;
 	long align;
 } header_t;
 
-#define	HDR_SIZE	(sizeof (header_t))
+#define	HDRSIZE	sizeof (header_t)
+#define	NALLOC	1024
 
-static header_t base;
 static header_t *freep = NULL;
+static header_t base;
 
 void
 myfree(void *ap)
@@ -43,6 +44,7 @@ myfree(void *ap)
 		if (p >= p->s.ptr && (bp > p || bp < p->s.ptr))
 			break;
 
+	/* Join with the upper block first. */
 	if (bp + bp->s.size == p->s.ptr) {
 		bp->s.size += p->s.ptr->s.size;
 		bp->s.ptr = p->s.ptr->s.ptr;
@@ -50,6 +52,7 @@ myfree(void *ap)
 		bp->s.ptr = p->s.ptr;
 	}
 
+	/* Join with the lower block. */
 	if (p + p->s.size == bp) {
 		p->s.size += bp->s.size;
 		p->s.ptr = bp->s.ptr;
@@ -61,35 +64,36 @@ myfree(void *ap)
 }
 
 static void *
-morecore(unsigned nunits)
+morecore(size_t nunits)
 {
-	header_t *nu;
-	char *cp;
+	void *more;
+	header_t *header;
 
-	cp = mmap(NULL, HDR_SIZE * nunits, PROT_READ | PROT_WRITE,
-	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	if (nunits < NALLOC)
+		nunits = NALLOC;
 
-	if (cp == MAP_FAILED)
+	if ((more = mmap(NULL, nunits * HDRSIZE, PROT_READ | PROT_WRITE,
+	    MAP_PRIVATE | MAP_ANONYMOUS, 0, 0)) == MAP_FAILED)
 		return (NULL);
 
-	nu = (header_t *)cp;
-	nu->s.size = nunits;
-	myfree((void *)(nu + 1));
+	header = (header_t *)more;
+	header->s.size = nunits;
+	myfree((void *)(header + 1));
 	return (freep);
 }
 
 void *
-mymalloc(unsigned nbytes)
+mymalloc(size_t nbytes)
 {
 	header_t *p, *prevp;
-	unsigned nunits = ((HDR_SIZE + nbytes - 1) / HDR_SIZE) + 1;
+	size_t nunits = ((nbytes + HDRSIZE - 1) / HDRSIZE) + 1;
 
-	if ((p = freep) == NULL) {
-		freep = prevp = base.s.ptr = &base;
+	if ((prevp = freep) == NULL) {
+		prevp = freep = base.s.ptr = &base;
 		base.s.size = 0;
 	}
 
-	for  (p = freep->s.ptr; ;prevp = p, p = p->s.ptr) {
+	for (p = prevp->s.ptr; ;prevp = p, p = p->s.ptr) {
 		if (p->s.size >= nunits) {
 			if (p->s.size == nunits) {
 				prevp->s.ptr = p->s.ptr;
@@ -102,24 +106,41 @@ mymalloc(unsigned nbytes)
 			return ((void *)(p + 1));
 		}
 
-		if (p == freep && ((p = morecore(nunits)) == NULL))
+		if (p == freep && (p = morecore(nunits)) == NULL)
 			return (NULL);
+	}
+}
+
+void
+test(int len, int iterations)
+{
+	int *array;
+	int i;
+
+	for (i = 0; i < iterations; i++) {
+		int j;
+		array =  mymalloc(sizeof (int) * len);
+
+		assert(array != NULL);
+
+
+		for (j = 0; j < len; j++)
+			array[j] = j;
+
+		print_array(array, len);
+		myfree(array);
+
+		len *= 2;
 	}
 }
 
 int main(int argc, char **argv)
 {
-	int i;
 	int len = atoi(argv[1]);
-	int *array = mymalloc(sizeof (int) * len);
+	int iterations = atoi(argv[2]);
 
-	srand(time(0));
-
-	for (i = 0; i < len; i++)
-		array[i] = i;//rand() % (len * 10);
-
-	print_array(array, len);
-	myfree(array);
+	//srand(time(0));
+	test(len, iterations);
 
 	return (0);
 }
