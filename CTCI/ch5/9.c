@@ -14,10 +14,10 @@ get_bit(int val, int index)
 }
 
 void
-print_binary(int val)
+print_binary(uint8_t val)
 {
 	int i;
-	int bits = sizeof (int) * 8;
+	int bits = 8;
 
 	for (i = bits - 1; i >= 0; i--)
 		printf("%d", get_bit(val, i));
@@ -25,26 +25,28 @@ print_binary(int val)
 	printf("\n");
 }
 
-unsigned int
-pairwise_swap(unsigned int val)
+uint8_t
+reverse(uint8_t b)
 {
-	unsigned int mask = 0xAAAAAAAA;
-	return (((mask & val) >> 1) | ((~mask & val) << 1));
+	b = (((b & 0xF0) >> 4) | ((b & ~0xF0) << 4));
+	b = (((b & 0xCC) >> 2) | ((b & ~0xCC) << 2));
+	b = (((b & 0xAA) >> 1) | ((b & ~0xAA) << 1));
+	return (b);
 }
 
 void
-test_pairwise(unsigned int val)
+test_reverse(uint8_t b)
 {
-	int swapped = pairwise_swap(val);
+	uint8_t reversed = reverse(b);
 
-	print_binary(val);
-	print_binary(swapped);
+	print_binary(b);
+	print_binary(reversed);
 }
 
 int main(int argc, char **argv)
 {
-	test_pairwise(0xAAAAAAAA);
-	test_pairwise(0xAAA00AAA);
+	test_reverse(0xAA);
+	test_reverse(0xCA);
 
 	return (0);
 }

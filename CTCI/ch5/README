@@ -9,14 +9,14 @@ Chapter 5: Bit Manipulation
    double, print the binary representation.  If the number can not be
    represented accurately in binary with at most 32 characters, print ERROR.
 
-3. You have an integer amd you can flip exactly one bit from 0 to 1.  Write
+3. You have an integer and you can flip exactly one bit from 0 to 1.  Write
    a function to find the length of the longest sequence of 1's that you could
    create by setting just 1 bit from 0 -> 1.
 
 4. Given a positive integer, print the next smallest and the next largest that
    have the same number of bits in their binary representation.
 
-5. Explain what the following code does: (n & (n - 2)) == 0.
+5. Explain what the following code does: (n & (n - 1)) == 0.
 
 6. Write a function to determine the number of buts you would need to flip to
    concery integer A to integer B.
@@ -31,3 +31,5 @@ Chapter 5: Bit Manipulation
    The height of the screen, of course, can be derived from the length of the
    array and the width.  Implement a function that draws a horizontal line from
    (x1, y) to (x2, y).
+
+9. Bonus: Write a function which reverses the bits in a byte.
