@@ -29,7 +29,7 @@ void
 urlify(char *str, int len)
 {
 	int i;
-	int first, last, cur;
+	int last, cur;
 
 	last = len - 1;
 
